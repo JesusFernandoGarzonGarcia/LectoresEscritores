@@ -6,22 +6,34 @@ import java.awt.event.ActionListener;
 import models.Dao;
 import views.ViewsPrincipal;
 
+/**
+ * Esta clase define el contralador del programa, esto quiere decir que esta clase nos permitira  unir la parte grafica y la parte logica del programa 
+ * @author: Jesus Garzon
+ * @version: 05/12/2022/A
+ */
 public class Controller implements ActionListener {
-
+	//Campos de la clase
 	Dao d;
 	ViewsPrincipal v;
 	Thread t;
 	int iteration;
+	
+	/**
+	 * Constructor del contralador del programa
+	 */
 	public Controller() {
 		iteration=0;
 		v = new ViewsPrincipal(this);
 		d = new Dao();
 	}
+	//Cierre del constructors
 
-
+	/**
+	 * que nos permitira inicializar una nueva symulacion
+	 * este reiniciara el hilo principal y las iteraciones realizadas por el sistema
+	 */
 	public void verifyCurrentTask() {
-		d.restartSymulation(Integer.parseInt(v.cantidadIteraciones()),Integer.parseInt(v.tiempoEspera()));
-
+		d.restartSymulation(Integer.parseInt(v.quantityIterations()),Integer.parseInt(v.Standbytime()));
 		t = new Thread(new Runnable() {
 			@Override
 			public void run() {
@@ -29,25 +41,22 @@ public class Controller implements ActionListener {
 					iteration=0;
 					for (int i = 0; i < d.getAmountIterations(); i++) {
 						Thread.sleep(d.getTimeSystem());
-						v.crearGrafico(d.tiempoTranscurrido(iteration+1));
-						v.actualizarTiempoSistema(iteration+"");
-						v.actualizarEscritorActual(" "+d.getCurrentWriter().getId()+" tiempo de trabajo > "+d.getCurrentWriter().getWorkTime()+" "+d.getCurrentWriter().isWriting());
+						v.updateSystemTime(iteration+"");
+						v.updateWriterCurrent(" "+d.getCurrentWriter().getId()+" tiempo de trabajo > "+d.getCurrentWriter().getWorkTime()+" "+d.getCurrentWriter().isWriting());
 						d.tasksWriters();
-						v.actualizarTareaActual(d.getCurrentTask());
+						v.updateCurrentTask(d.getCurrentTask());
 						d.timeToGenerateAReader();
-						v.actualizarTexto(d.getResource().getContent());
-						v.actualizarLectores(d.getReaders().toArray());
-						v.actualizarTiempoLector(d.getNextReader()+"");
-						v.actualizarTareaActual(d.getCurrentTask());
-						v.actualizarEscritores(d.getWriters().toArray());
-						v.actualizarLectoresFinalizados(d.getReadersDoingTask().toArray());
-						v.actualizarTiempoEscritor(d.getNextWriter()+"");
+						v.updateText(d.getResource().getContent());
+						v.refreshReader(d.getReaders().toArray());
+						v.updateTimeReader(d.getNextReader()+"");
+						v.updateCurrentTask(d.getCurrentTask());
+						v.updateWriters(d.getWriters().toArray());
+						v.updateReaderDone(d.getReadersDoingTask().toArray());
+						v.updateTimeWriter(d.getNextWriter()+"");
 						d.TimeToGenerateAWriter();
 						d.taskreadingFinished();
+						d.addInforLog(iteration);
 						iteration++;
-						v.crearGraficaPromedio();
-//						graficaHoras(double[][] ds);
-						System.out.println("id "+ t.getId()+ " "+iteration);
 					}
 
 				} catch (InterruptedException e) {
@@ -57,7 +66,9 @@ public class Controller implements ActionListener {
 		t.start();
 	}
 
-
+	/**
+	 * motodo sobre escrito de keylistener que nos permitira capturar las acciones del usuria realizadas en la interfaz grafica
+	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getActionCommand().equals("iniciar")) {
@@ -68,6 +79,7 @@ public class Controller implements ActionListener {
 		}
 	}
 
+	
 
 	public static void main(String[] args) {
 		new Controller();
